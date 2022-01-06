@@ -3,7 +3,10 @@ Secret sharing library
 
 A Python3 library for sharing secrets. Currently, only [Shamir's secret sharing scheme](https://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing) is available, but other algorithms should be implemented in the future.
 
+This fork modifies the original library to support Feldman verifiable secret sharing scheme.
+
 ## Installation
+To install the original library run:
 ```bash
 pip install sslib
 ```
@@ -12,7 +15,7 @@ pip install sslib
 ### Overview
 [Shamir's algorithm](https://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing) allows one to to split an integer _S_ into _n_ shares in such a way that at least _k_ of these shares are required to recover the original secret.
 
-The key ideia is to build a polynomial _Q_ of degree _k-1_ over a finite field _GF(P)_, where _P_ is a prime number greater than max(_S_, _n_), such that _Q(0) = S_.
+The key idea is to build a polynomial _Q_ of degree _k-1_ over a finite field _GF(P)_, where _P_ is a prime number greater than max(_S_, _n_), such that _Q(0) = S_.
 Then, _n_ points are distributed to participants—for example, _(1, Q(1))_, _(2, Q(2))_, ..., _(n, Q(n))_.
 
 Given the prime _P_ and any _k_ points, it is possible to recover the secret by reconstructing _Q_ and evaluating _Q(0_).
@@ -81,6 +84,23 @@ In the output of ````shamir.split_secret````, the prime modulus is represented a
 ```
 
 ### Optional parameters
+#### Feldman Verification
+By default, the function ````shamir.split_secret```` does not generate commits for verifiable secret sharing. To enable this feature, set argument ````verifiable=True````. More information on Feldman scheme can be found [here](https://profs.info.uaic.ro/~siftene/Feldman.pdf). 
+
+Each party receiving a share can verify that the shares were generated correctly using the committed coefficients, as the following code illustrates:
+
+#### Verifying Shamir Secret Shares
+```python
+>>> from sslib import shamir
+>>> required_shares = 2
+>>> distributed_shares = 5
+>>> shamirSecret = shamir.split_secret("this is my secret".encode('ascii'), required_shares, distributed_shares, verifiable=True)
+>>> for i in range(distributed_shares):
+    shamir.feldman_verification(shamirSecret['prime2'], shamirSecret['generator'], \
+        shamirSecret['shares'][i][0], shamirSecret['shares'][i][1], shamirSecret['commits'])
+```
+
+
 #### Randomness source
 By default, the function ````shamir.split_secret```` uses either ````randomness.RandomReader```` or ````randomness.UrandomReader```` as the source of randomness, depending on the size of the secret. Under Unix, the former reads random bytes from _/dev/random_, while the latter reads from _/dev/urandom_. Under Windows, both classes take bytes from _CryptGenRandom_.
 
