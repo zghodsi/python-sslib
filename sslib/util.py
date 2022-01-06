@@ -1,3 +1,7 @@
+
+from .precomputed_params import preprimes, preparams
+from .get_params import get_params
+
 def required_bytes_given_bitlength(bits):
     if not isinstance(bits, int):
         raise TypeError("bitlength must be an int")
@@ -52,6 +56,17 @@ def select_prime_larger_than(value):
         if prime > value:
             return prime
     raise ValueError("value is too large")
+
+def select_prime_feldman(value):
+    prime = select_prime_larger_than(value)
+    if prime in preprimes:
+        print('using precomputed params')
+        prime2 = preparams[prime]['prime2']
+        generator = preparams[prime]['generator']
+    else:
+        prime2, generator = get_params(prime)
+
+    return prime, prime2, generator
 
 def modular_inverse(a, mod):
     if not isinstance(a, int) or not isinstance(mod, int):
