@@ -170,6 +170,8 @@ def from_base64(data):
     decode_tuple = lambda xy: (int(xy[0]), base64.b64decode(xy[1]))
     decode_share = lambda s: decode_tuple(tuple(s.split("-")))
     decode_commit = lambda x: base64.b64decode(x)
+    if 'prime2' not in data:
+        raise Exception("ERROR: prime2 not in {}".format(data))
     return {
         'required_shares': data['required_shares'],
         'prime_mod': data['prime_mod'] if isinstance(data['prime_mod'], int)
