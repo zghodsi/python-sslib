@@ -11,5 +11,6 @@ setup(
     description='A Python3 library for sharing secrets.',
     license='MIT',
     packages=['sslib', 'sslib.shamir'],
+    install_requires=["gmpy2"],
     python_requires='>=3',
 )
