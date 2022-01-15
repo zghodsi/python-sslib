@@ -103,12 +103,15 @@ def split_secret(secret_bytes, required_shares, distributed_shares, verifiable=F
         }
 
 
-def feldman_verification(prime2, generator, index, share, commits):
+def feldman_verification(prime2, generator, share, commits):
     if len(commits)==0:
         raise ValueError("commits where not generated, did you set the verifiable flag?")
-    prime2 = util.int_from_bytes(prime2)
-    generator = util.int_from_bytes(generator)
-    share = util.int_from_bytes(share)
+
+    prime2 = util.int_from_bytes(base64.b64decode(prime2))
+    generator = util.int_from_bytes(base64.b64decode(generator))
+    index = int(tuple(share.split("-"))[0])
+    share = util.int_from_bytes(base64.b64decode(tuple(share.split("-"))[1]))
+    commits = list(map( lambda x: base64.b64decode(x), commits))
 
     #val1 = generator**share % prime2
     val1 = gmpy2.powmod(gmpy2.mpz(generator), gmpy2.mpz(share), gmpy2.mpz(prime2))
